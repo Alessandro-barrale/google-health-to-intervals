@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+dist/
+build/
+*.egg-info/
+
+# Local secrets: never commit these
+.env
+config.env
+*.local.json
+
+# Editors
+.vscode/
+.idea/
+.DS_Store
