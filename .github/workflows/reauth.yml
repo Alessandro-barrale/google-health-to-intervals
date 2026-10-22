@@ -1,0 +1,64 @@
+name: Re-authorize
+
+# Run it once with an empty box to get the Google link, then again with the
+# address your browser ended on. See "Weekly re-authorization" in the README.
+on:
+  workflow_dispatch:
+    inputs:
+      redirect_url:
+        description: "Paste the whole address from the browser (http://127.0.0.1:8765/?state=...). Leave empty to get a new link."
+        required: false
+        default: ""
+
+permissions:
+  contents: write # to save the encrypted token in state/
+
+concurrency:
+  group: ghti-state
+  cancel-in-progress: false
+
+jobs:
+  reauth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      INTERVALS_API_KEY: ${{ secrets.INTERVALS_API_KEY }}
+      INTERVALS_ATHLETE_ID: ${{ secrets.INTERVALS_ATHLETE_ID }}
+      GHTI_TIMEZONE: ${{ vars.GHTI_TIMEZONE }}
+      GHTI_TOKEN_FILE: state/token.enc
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Show the authorization link
+        if: inputs.redirect_url == ''
+        run: uv run --frozen ghti auth-url
+
+      - name: Save the authorization
+        if: inputs.redirect_url != ''
+        env:
+          # Passed as an environment variable, never pasted into the script.
+          GHTI_REDIRECT_URL: ${{ inputs.redirect_url }}
+        run: uv run --frozen ghti auth-finish
+
+      - name: Commit the encrypted token
+        if: inputs.redirect_url != ''
+        run: |
+          git add -A state
+          if git diff --cached --quiet; then
+            echo "Token unchanged."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Save new encrypted Google token"
+          git pull --rebase --quiet
+          git push
+
+      - name: Copy the days missed while the authorization was expired
+        if: inputs.redirect_url != ''
+        env:
+          DAYS: ${{ vars.GHTI_CATCH_UP_DAYS || '14' }}
+        run: uv run --frozen ghti sync --days "$DAYS"
