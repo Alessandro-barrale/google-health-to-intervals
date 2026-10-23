@@ -7,6 +7,11 @@ It is made for people who cannot use the Android apps that do this through
 Health Connect, especially **iPhone users**. It runs **for free on your own
 GitHub account** (GitHub Actions): no Raspberry Pi, no server, no app to install.
 
+> Not sure this is the right route for you, or prefer not to touch GitHub? The paid PDF guide
+> [Keep Your Fitbit Data After the Google Health Switch](https://antivex.gumroad.com/l/fitbit-google-health-intervals) compares every option
+> (Health Connect, Health Sync, Apple Health, CSV upload, the intervals.icu API and this bridge) step by step.
+> The bridge itself stays free.
+
 | Google Health | intervals.icu wellness field |
 |---|---|
 | Sleep duration (time asleep, naps excluded) | `sleepSecs` |
@@ -260,8 +265,8 @@ not yet checked against real data are marked `DA VERIFICARE CON DATI REALI`.
 
 ## Support this project
 
-If this saves you time, you can support its development here:
-**[DONATION LINK PLACEHOLDER]**
+If this saves you time, you can leave a tip at https://ko-fi.com/antivex.
+The [step-by-step guide](https://antivex.gumroad.com/l/fitbit-google-health-intervals) also helps fund the project.
 
 ## License
 
