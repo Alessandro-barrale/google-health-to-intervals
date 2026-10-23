@@ -7,7 +7,7 @@ Sources (read on 2026-10-22):
 - https://developers.google.com/health/aggregate-data
 - intervals.icu OpenAPI: https://intervals.icu/api/v1/docs (schema "Wellness")
 
-DA VERIFICARE CON DATI REALI (to be checked with real data): everything marked
+TO VERIFY WITH REAL DATA: everything marked
 with this tag was written from the documentation only, without a real response.
 If Google answers differently, fix it here; the rest of the code does not change.
 """
@@ -92,7 +92,7 @@ def build_filter(field: str, start: date, end_exclusive: date) -> str:
 
 
 def extract_sleep(point: dict) -> list[Reading]:
-    # DA VERIFICARE CON DATI REALI: union key "sleep", "summary.minutesAsleep"
+    # TO VERIFY WITH REAL DATA: union key "sleep", "summary.minutesAsleep"
     # (int64 as string), "metadata.nap", "interval.civilEndTime.date" and the
     # fallback "interval.endTime" + "interval.endUtcOffset".
     # The Google Health API has no sleep score field (checked 2026-10-22), so
@@ -128,7 +128,7 @@ def _daily(key: str, value_keys: tuple[str, ...], field: str, convert: Callable[
 
 
 def extract_weight(point: dict) -> list[Reading]:
-    # DA VERIFICARE CON DATI REALI: union key "weight", "weightGrams",
+    # TO VERIFY WITH REAL DATA: union key "weight", "weightGrams",
     # "sampleTime.civilTime.date" (output only) and "sampleTime.physicalTime"/"utcOffset".
     weight = point.get("weight") or {}
     grams = _number(weight.get("weightGrams"))
@@ -142,7 +142,7 @@ def extract_weight(point: dict) -> list[Reading]:
 
 
 def extract_steps(point: dict) -> list[Reading]:
-    # DA VERIFICARE CON DATI REALI: dailyRollUp item with "civilStartTime.date"
+    # TO VERIFY WITH REAL DATA: dailyRollUp item with "civilStartTime.date"
     # and "steps.countSum" (int64 as string). A sum of 0 usually means "no data"
     # (watch not worn), so it is skipped instead of overwriting intervals.icu.
     day = _date((point.get("civilStartTime") or {}).get("date"))
@@ -158,7 +158,7 @@ METRICS: tuple[Metric, ...] = (
     Metric(
         name="sleep",
         data_type="sleep",
-        # DA VERIFICARE CON DATI REALI: "reconcile" is the documented way to merge
+        # TO VERIFY WITH REAL DATA: "reconcile" is the documented way to merge
         # overlapping sleep logs from several devices; "list" would also work.
         method="reconcile",
         filter_field="sleep.interval.civil_end_time",
@@ -171,13 +171,13 @@ METRICS: tuple[Metric, ...] = (
         name="resting heart rate",
         data_type="daily-resting-heart-rate",
         method="list",
-        # DA VERIFICARE CON DATI REALI: snake_case filter names, as used by the
+        # TO VERIFY WITH REAL DATA: snake_case filter names, as used by the
         # official google-health-cli (the docs also show a camelCase example).
         filter_field="daily_resting_heart_rate.date",
         page_size=1000,
         scope=METRICS_SCOPE,
         combine="last",
-        # DA VERIFICARE CON DATI REALI: "beatsPerMinute" (int64 as string).
+        # TO VERIFY WITH REAL DATA: "beatsPerMinute" (int64 as string).
         extract=_daily("dailyRestingHeartRate", ("beatsPerMinute",), "restingHR", lambda v: int(round(v))),
     ),
     Metric(
@@ -188,7 +188,7 @@ METRICS: tuple[Metric, ...] = (
         page_size=1000,
         scope=METRICS_SCOPE,
         combine="last",
-        # DA VERIFICARE CON DATI REALI: intervals.icu "hrv" is rMSSD in ms. We
+        # TO VERIFY WITH REAL DATA: intervals.icu "hrv" is rMSSD in ms. We
         # assume "averageHeartRateVariabilityMilliseconds" is the nightly rMSSD
         # shown in the Fitbit app; the deep-sleep rMSSD is only a fallback.
         extract=_daily(
@@ -216,7 +216,7 @@ METRICS: tuple[Metric, ...] = (
         page_size=1000,
         scope=METRICS_SCOPE,
         combine="last",
-        # DA VERIFICARE CON DATI REALI: "averagePercentage".
+        # TO VERIFY WITH REAL DATA: "averagePercentage".
         extract=_daily("dailyOxygenSaturation", ("averagePercentage",), "spO2", lambda v: round(v, 1)),
     ),
     Metric(
@@ -237,7 +237,7 @@ METRICS: tuple[Metric, ...] = (
         page_size=1000,
         scope=ACTIVITY_SCOPE,
         combine="last",
-        # DA VERIFICARE CON DATI REALI: union key "dailyVo2Max", value "vo2Max".
+        # TO VERIFY WITH REAL DATA: union key "dailyVo2Max", value "vo2Max".
         extract=_daily("dailyVo2Max", ("vo2Max",), "vo2max", lambda v: round(v, 1)),
     ),
     Metric(
@@ -248,7 +248,7 @@ METRICS: tuple[Metric, ...] = (
         page_size=1000,
         scope=METRICS_SCOPE,
         combine="last",
-        # DA VERIFICARE CON DATI REALI: union key "dailyRespiratoryRate", value "breathsPerMinute".
+        # TO VERIFY WITH REAL DATA: union key "dailyRespiratoryRate", value "breathsPerMinute".
         extract=_daily("dailyRespiratoryRate", ("breathsPerMinute",), "respiration", lambda v: round(v, 1)),
     ),
 )
