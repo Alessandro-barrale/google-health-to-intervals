@@ -261,7 +261,7 @@ uv run pytest -q
 
 The tests are offline: every HTTP call is faked. The mapping between Google's
 fields and intervals.icu lives in one file, `src/ghti/mapping.py`; the places
-not yet checked against real data are marked `DA VERIFICARE CON DATI REALI`.
+not yet checked against real data are marked `TO VERIFY WITH REAL DATA`.
 
 ## Support this project
 
